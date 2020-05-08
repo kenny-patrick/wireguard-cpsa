@@ -1,0 +1,260 @@
+<?xml version="1.0"?>
+<!-- CPSA 3.6.5 -->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+ <title>wireguard protocol handshake</title>
+ <meta http-equiv="content-type" content="application/xhtml+xml; charset=UTF-8" />
+ <style>
+  svg.diagram { border-width: 1px; border-style: solid }
+ </style>
+</head>
+<body>
+
+<pre>(comment &quot;CPSA 3.6.5&quot;)
+(comment &quot;Extracted shapes&quot;)
+(herald &quot;wireguard protocol handshake&quot; (algebra diffie-hellman))
+(comment &quot;CPSA 3.6.5&quot;)
+(comment &quot;All input read from handshake.scm&quot;)</pre>
+
+<p id="t0">Tree 0.</p>
+
+<div>
+ <svg
+  class='diagram' width='129.840pt' height='154.920pt'
+  xmlns='http://www.w3.org/2000/svg' version='1.1'
+  viewBox='0 0 129.840 154.920' font-size='12.000'>
+  <text
+   x='89.880' y='101.040'
+   style='font-weight: bold; text-anchor: middle; fill: blue;'
+   onclick='window.open(&quot;#k2&quot;, &quot;_self&quot;)'>2</text>
+  <line
+   x1='39.960' y1='77.460' x2='89.880' y2='114.960'
+   style='stroke-width: 0.960; stroke: gray;'/>
+  <text
+   x='89.880' y='26.040'
+   style='font-weight: bold; text-anchor: middle; fill: blue;'
+   onclick='window.open(&quot;#k1&quot;, &quot;_self&quot;)'>1</text>
+  <line
+   x1='39.960' y1='77.460' x2='89.880' y2='39.960'
+   style='stroke-width: 0.960; stroke: gray;'/>
+  <text
+   x='39.960' y='63.540' style='text-anchor: middle; fill: black;'
+   onclick='window.open(&quot;#k0&quot;, &quot;_self&quot;)'>0</text>
+  </svg></div>
+
+<pre>(defprotocol handshake diffie-hellman
+  (defrole peer
+    (vars (s_self e_self rndx) (s_other e_other expt) (self other name)
+      (n data))
+    (trace (recv (enc &quot;sig&quot; (exp (gen) s_self) self (privk self)))
+      (recv (enc &quot;sig&quot; (exp (gen) s_other) other (privk other)))
+      (send (exp (gen) e_self)) (recv (exp (gen) e_other)) (send n))
+    (uniq-gen e_self)
+    (absent (e_self (exp (gen) s_self)) (e_self (exp (gen) s_other))))
+  (defrole static-sign
+    (vars (self name) (s_self rndx))
+    (trace (send (enc &quot;sig&quot; (exp (gen) s_self) self (privk self))))
+    (uniq-gen s_self)
+    (comment &quot;Wireguard handshake&quot;)))</pre>
+
+<p id="k0">Item <a href="#t0">0</a>, Children: <a href="#k1">1</a> <a href="#k2">2</a>.</p>
+
+<div>
+ <svg
+  class='diagram' width='79.920pt' height='454.920pt'
+  xmlns='http://www.w3.org/2000/svg' version='1.1'
+  viewBox='0 0 79.920 454.920' font-size='12.000'>
+  <defs>
+   <marker
+    id='arrow' orient='auto' markerWidth='5' markerHeight='10' refX='5'
+    refY='5'>
+    <path
+     d='M 0 0 5 5 0 10'
+     style='stroke-width: 2; fill: none; stroke: black;'/></marker>
+   </defs>
+  <line
+   x1='39.960' y1='114.960' x2='39.960' y2='414.960'
+   style='stroke-width: 0.960; stroke: gray;'/>
+  <g><title>n</title><circle cx='39.960' cy='414.960' r='6.000'/></g>
+  <g><title>(exp (gen) e_other)</title>
+   <circle style='fill: blue;' cx='39.960' cy='339.960' r='6.000'/></g>
+  <g><title>(exp (gen) eA)</title>
+   <circle cx='39.960' cy='264.960' r='6.000'/></g>
+  <g>
+   <title>(enc &quot;sig&quot; (exp (gen) s_other) B (privk B))</title>
+   <circle style='fill: blue;' cx='39.960' cy='189.960' r='6.000'/></g>
+  <g><title>(enc &quot;sig&quot; (exp (gen) sA) A (privk A))</title>
+   <circle style='fill: red;' cx='39.960' cy='114.960' r='6.000'/></g>
+  <g>
+   <title>((n n) (self A) (other B) (s_self sA) (e_self eA) (s_other s_other) (e_other e_other))</title>
+   <text x='39.960' y='77.460' style='text-anchor: middle;'>peer</text>
+   </g>
+  <text
+   x='39.960' y='39.960' style='text-anchor: middle;'>handshake 0</text>
+  </svg></div>
+
+<pre>(defskeleton handshake
+  (vars (n data) (A B name) (eA sA rndx) (s_other e_other expt))
+  (defstrand peer 5 (n n) (self A) (other B) (s_self sA) (e_self eA)
+    (s_other s_other) (e_other e_other))
+  (absent (eA (exp (gen) sA)) (eA (exp (gen) s_other)))
+  (non-orig sA)
+  (uniq-gen eA)
+  (comment &quot;Initiator point of view&quot;)
+  (label 0)
+  (unrealized (0 0))
+  (origs)
+  (comment &quot;3 in cohort - 3 not yet seen&quot;))</pre>
+
+<p id="k1">Item <a href="#t0">1</a>, Parent: <a href="#k0">0</a>.</p>
+
+<div>
+ <svg
+  class='diagram' width='179.880pt' height='604.920pt'
+  xmlns='http://www.w3.org/2000/svg' version='1.1'
+  viewBox='0 0 179.880 604.920' font-size='12.000'>
+  <defs>
+   <marker
+    id='arrow' orient='auto' markerWidth='5' markerHeight='10' refX='5'
+    refY='5'>
+    <path
+     d='M 0 0 5 5 0 10'
+     style='stroke-width: 2; fill: none; stroke: black;'/></marker>
+   </defs>
+  <line
+   x1='139.920' y1='114.960' x2='139.920' y2='264.960'
+   style='stroke-width: 0.960; stroke: gray;'/>
+  <line
+   x1='39.960' y1='264.960' x2='39.960' y2='564.960'
+   style='stroke-width: 0.960; stroke: gray;'/>
+  <path
+   d='M 139.920 264.960 Q 92.940 264.960 45.960 264.960'
+   style='stroke-dasharray: 6.000,2.400; stroke-width: 0.960; stroke: black; marker-end: url(#arrow); fill: none;'/>
+  <g><title>(exp (gen) e_self)</title>
+   <circle cx='139.920' cy='264.960' r='6.000'/></g>
+  <g>
+   <title>(enc &quot;sig&quot; (exp (gen) s_other-0) other (privk other))</title>
+   <circle style='fill: blue;' cx='139.920' cy='189.960' r='6.000'/></g>
+  <g>
+   <title>(enc &quot;sig&quot; (exp (gen) s_self) self (privk self))</title>
+   <circle style='fill: blue;' cx='139.920' cy='114.960' r='6.000'/></g>
+  <g><title>n</title><circle cx='39.960' cy='564.960' r='6.000'/></g>
+  <g><title>(exp (gen) e_other)</title>
+   <circle style='fill: blue;' cx='39.960' cy='489.960' r='6.000'/></g>
+  <g><title>(exp (gen) eA)</title>
+   <circle cx='39.960' cy='414.960' r='6.000'/></g>
+  <g>
+   <title>(enc &quot;sig&quot; (exp (gen) s_other) B (privk B))</title>
+   <circle style='fill: blue;' cx='39.960' cy='339.960' r='6.000'/></g>
+  <g><title>(enc &quot;sig&quot; (exp (gen) e_self) A (privk A))</title>
+   <circle style='fill: blue;' cx='39.960' cy='264.960' r='6.000'/></g>
+  <g>
+   <title>((self self) (other other) (s_self s_self) (e_self e_self) (s_other s_other-0))</title>
+   <text x='139.920' y='77.460' style='text-anchor: middle;'>peer</text>
+   </g>
+  <g>
+   <title>((n n) (self A) (other B) (s_self e_self) (e_self eA) (s_other s_other) (e_other e_other))</title>
+   <text x='39.960' y='77.460' style='text-anchor: middle;'>peer</text>
+   </g>
+  <text
+   x='89.940' y='39.960'
+   style='text-anchor: middle;'>handshake 1 (realized)</text></svg>
+ </div>
+
+<pre>(defskeleton handshake
+  (vars (n data) (A B self other name) (eA rndx) (s_other e_other expt)
+    (s_self rndx) (s_other-0 expt) (e_self rndx))
+  (defstrand peer 5 (n n) (self A) (other B) (s_self e_self) (e_self eA)
+    (s_other s_other) (e_other e_other))
+  (defstrand peer 3 (self self) (other other) (s_self s_self)
+    (e_self e_self) (s_other s_other-0))
+  (precedes ((1 2) (0 0)))
+  (absent (e_self (exp (gen) s_self)) (e_self (exp (gen) s_other-0))
+    (eA (exp (gen) e_self)) (eA (exp (gen) s_other)))
+  (non-orig e_self)
+  (uniq-gen eA e_self)
+  (operation nonce-test (added-strand peer 3) (exp (gen) e_self) (0 0))
+  (label 1)
+  (parent 0)
+  (unrealized)
+  (shape)
+  (maps
+    ((0)
+      ((eA eA) (sA e_self) (A A) (B B) (s_other s_other)
+        (e_other e_other) (n n))))
+  (origs))</pre>
+
+<p id="k2">Item <a href="#t0">2</a>, Parent: <a href="#k0">0</a>.</p>
+
+<div>
+ <svg
+  class='diagram' width='179.880pt' height='454.920pt'
+  xmlns='http://www.w3.org/2000/svg' version='1.1'
+  viewBox='0 0 179.880 454.920' font-size='12.000'>
+  <defs>
+   <marker
+    id='arrow' orient='auto' markerWidth='5' markerHeight='10' refX='5'
+    refY='5'>
+    <path
+     d='M 0 0 5 5 0 10'
+     style='stroke-width: 2; fill: none; stroke: black;'/></marker>
+   </defs>
+  <line
+   x1='139.920' y1='114.960' x2='139.920' y2='114.960'
+   style='stroke-width: 0.960; stroke: gray;'/>
+  <line
+   x1='39.960' y1='114.960' x2='39.960' y2='414.960'
+   style='stroke-width: 0.960; stroke: gray;'/>
+  <path
+   d='M 139.920 114.960 Q 92.940 114.960 45.960 114.960'
+   style='stroke-dasharray: 6.000,2.400; stroke-width: 0.960; stroke: black; marker-end: url(#arrow); fill: none;'/>
+  <g>
+   <title>(enc &quot;sig&quot; (exp (gen) s_self) self (privk self))</title>
+   <circle cx='139.920' cy='114.960' r='6.000'/></g>
+  <g><title>n</title><circle cx='39.960' cy='414.960' r='6.000'/></g>
+  <g><title>(exp (gen) e_other)</title>
+   <circle style='fill: blue;' cx='39.960' cy='339.960' r='6.000'/></g>
+  <g><title>(exp (gen) eA)</title>
+   <circle cx='39.960' cy='264.960' r='6.000'/></g>
+  <g>
+   <title>(enc &quot;sig&quot; (exp (gen) s_other) B (privk B))</title>
+   <circle style='fill: blue;' cx='39.960' cy='189.960' r='6.000'/></g>
+  <g><title>(enc &quot;sig&quot; (exp (gen) s_self) A (privk A))</title>
+   <circle style='fill: blue;' cx='39.960' cy='114.960' r='6.000'/></g>
+  <g><title>((self self) (s_self s_self))</title>
+   <text
+    x='139.920' y='77.460'
+    style='text-anchor: middle;'>static-sign</text></g>
+  <g>
+   <title>((n n) (self A) (other B) (s_self s_self) (e_self eA) (s_other s_other) (e_other e_other))</title>
+   <text x='39.960' y='77.460' style='text-anchor: middle;'>peer</text>
+   </g>
+  <text
+   x='89.940' y='39.960'
+   style='text-anchor: middle;'>handshake 2 (realized)</text></svg>
+ </div>
+
+<pre>(defskeleton handshake
+  (vars (n data) (A B self name) (eA rndx) (s_other e_other expt)
+    (s_self rndx))
+  (defstrand peer 5 (n n) (self A) (other B) (s_self s_self) (e_self eA)
+    (s_other s_other) (e_other e_other))
+  (defstrand static-sign 1 (self self) (s_self s_self))
+  (precedes ((1 0) (0 0)))
+  (absent (eA (exp (gen) s_self)) (eA (exp (gen) s_other)))
+  (non-orig s_self)
+  (uniq-gen eA s_self)
+  (operation nonce-test (added-strand static-sign 1) (exp (gen) s_self)
+    (0 0))
+  (label 2)
+  (parent 0)
+  (unrealized)
+  (shape)
+  (maps
+    ((0)
+      ((eA eA) (sA s_self) (A A) (B B) (s_other s_other)
+        (e_other e_other) (n n))))
+  (origs))</pre>
+
+</body>
+</html>

@@ -1,0 +1,99 @@
+(comment "CPSA 3.6.5")
+(comment "Extracted shapes")
+
+(herald "wireguard protocol handshake" (algebra diffie-hellman))
+
+(comment "CPSA 3.6.5")
+
+(comment "All input read from handshake.scm")
+
+(defprotocol handshake diffie-hellman
+  (defrole peer
+    (vars (s_self e_self rndx) (s_other e_other expt) (self other name)
+      (n data))
+    (trace (recv (enc "sig" (exp (gen) s_self) self (privk self)))
+      (recv (enc "sig" (exp (gen) s_other) other (privk other)))
+      (send (exp (gen) e_self)) (recv (exp (gen) e_other)) (send n))
+    (uniq-gen e_self)
+    (absent (e_self (exp (gen) s_self)) (e_self (exp (gen) s_other))))
+  (defrole static-sign
+    (vars (self name) (s_self rndx))
+    (trace (send (enc "sig" (exp (gen) s_self) self (privk self))))
+    (uniq-gen s_self)
+    (comment "Wireguard handshake")))
+
+(defskeleton handshake
+  (vars (n data) (A B name) (eA sA rndx) (s_other e_other expt))
+  (defstrand peer 5 (n n) (self A) (other B) (s_self sA) (e_self eA)
+    (s_other s_other) (e_other e_other))
+  (absent (eA (exp (gen) sA)) (eA (exp (gen) s_other)))
+  (non-orig sA)
+  (uniq-gen eA)
+  (comment "Initiator point of view")
+  (traces
+    ((recv (enc "sig" (exp (gen) sA) A (privk A)))
+      (recv (enc "sig" (exp (gen) s_other) B (privk B)))
+      (send (exp (gen) eA)) (recv (exp (gen) e_other)) (send n)))
+  (label 0)
+  (unrealized (0 0))
+  (origs)
+  (comment "3 in cohort - 3 not yet seen"))
+
+(defskeleton handshake
+  (vars (n data) (A B self other name) (eA rndx) (s_other e_other expt)
+    (s_self rndx) (s_other-0 expt) (e_self rndx))
+  (defstrand peer 5 (n n) (self A) (other B) (s_self e_self) (e_self eA)
+    (s_other s_other) (e_other e_other))
+  (defstrand peer 3 (self self) (other other) (s_self s_self)
+    (e_self e_self) (s_other s_other-0))
+  (precedes ((1 2) (0 0)))
+  (absent (e_self (exp (gen) s_self)) (e_self (exp (gen) s_other-0))
+    (eA (exp (gen) e_self)) (eA (exp (gen) s_other)))
+  (non-orig e_self)
+  (uniq-gen eA e_self)
+  (operation nonce-test (added-strand peer 3) (exp (gen) e_self) (0 0))
+  (traces
+    ((recv (enc "sig" (exp (gen) e_self) A (privk A)))
+      (recv (enc "sig" (exp (gen) s_other) B (privk B)))
+      (send (exp (gen) eA)) (recv (exp (gen) e_other)) (send n))
+    ((recv (enc "sig" (exp (gen) s_self) self (privk self)))
+      (recv (enc "sig" (exp (gen) s_other-0) other (privk other)))
+      (send (exp (gen) e_self))))
+  (label 1)
+  (parent 0)
+  (unrealized)
+  (shape)
+  (maps
+    ((0)
+      ((eA eA) (sA e_self) (A A) (B B) (s_other s_other)
+        (e_other e_other) (n n))))
+  (origs))
+
+(defskeleton handshake
+  (vars (n data) (A B self name) (eA rndx) (s_other e_other expt)
+    (s_self rndx))
+  (defstrand peer 5 (n n) (self A) (other B) (s_self s_self) (e_self eA)
+    (s_other s_other) (e_other e_other))
+  (defstrand static-sign 1 (self self) (s_self s_self))
+  (precedes ((1 0) (0 0)))
+  (absent (eA (exp (gen) s_self)) (eA (exp (gen) s_other)))
+  (non-orig s_self)
+  (uniq-gen eA s_self)
+  (operation nonce-test (added-strand static-sign 1) (exp (gen) s_self)
+    (0 0))
+  (traces
+    ((recv (enc "sig" (exp (gen) s_self) A (privk A)))
+      (recv (enc "sig" (exp (gen) s_other) B (privk B)))
+      (send (exp (gen) eA)) (recv (exp (gen) e_other)) (send n))
+    ((send (enc "sig" (exp (gen) s_self) self (privk self)))))
+  (label 2)
+  (parent 0)
+  (unrealized)
+  (shape)
+  (maps
+    ((0)
+      ((eA eA) (sA s_self) (A A) (B B) (s_other s_other)
+        (e_other e_other) (n n))))
+  (origs))
+
+(comment "Nothing left to do")
